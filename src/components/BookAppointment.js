@@ -252,8 +252,15 @@ export default function BookAppointment({ doctor, hospital }) {
       setBookedSlots((prev) =>
         prev.includes(selectedTime) ? prev : [...prev, selectedTime]
       );
-      // FIX 6: Switch to confirmation screen
-      setConfirmedBooking({ date: selectedDate, time: selectedTime });
+      // FIX 6: Switch to confirmation screen with visit + patient details
+      setConfirmedBooking({
+        date: selectedDate,
+        time: selectedTime,
+        patientName: fullName,
+        patientEmail: email,
+        patientPhone: phone,
+        patientReason: reason,
+      });
       setSelectedTime("");
     } catch (err) {
       console.error(err);
@@ -274,6 +281,10 @@ export default function BookAppointment({ doctor, hospital }) {
         hospital={hospital}
         date={confirmedBooking.date}
         time={confirmedBooking.time}
+        patientName={confirmedBooking.patientName}
+        patientEmail={confirmedBooking.patientEmail}
+        patientPhone={confirmedBooking.patientPhone}
+        patientReason={confirmedBooking.patientReason}
         onBookAnother={() => {
           setConfirmedBooking(null);
           setSelectedDate(null);
