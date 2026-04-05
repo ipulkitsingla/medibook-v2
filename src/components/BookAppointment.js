@@ -145,15 +145,30 @@ export default function BookAppointment({ doctor, hospital }) {
     [viewYear, viewMonth, today, allowedSet]
   );
 
-  const timeSlots = useMemo(
-    () =>
-      generateTimeSlots(
-        hospital?.openTime || "09:00",
-        hospital?.closeTime || "17:00",
-        doctor?.slotDuration || 30
-      ),
-    [hospital?.openTime, hospital?.closeTime, doctor?.slotDuration]
-  );
+  const timeSlots = useMemo(() => {
+    const allSlots = generateTimeSlots(
+      hospital?.openTime || "09:00",
+      hospital?.closeTime || "17:00",
+      doctor?.slotDuration || 30
+    );
+
+    // If the selected date is today, filter out time slots that have already passed
+    if (selectedDate) {
+      const selectedDay = startOfDay(selectedDate);
+      const todayDay = startOfDay(today);
+      const isToday = selectedDay.getTime() === todayDay.getTime();
+
+      if (isToday) {
+        const nowMinutes = today.getHours() * 60 + today.getMinutes();
+        return allSlots.filter((slot) => {
+          const slotMinutes = parseTimeToMinutes(slot);
+          return slotMinutes !== null && slotMinutes > nowMinutes;
+        });
+      }
+    }
+
+    return allSlots;
+  }, [hospital?.openTime, hospital?.closeTime, doctor?.slotDuration, selectedDate, today]);
 
   useEffect(() => {
     // Preselect the first available date in the current view month (if any).
