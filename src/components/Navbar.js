@@ -17,16 +17,17 @@ export default function Navbar() {
       </ul>
 
       <div className="nav-actions">
-        {/* Hospital admin login */}
         <button className="btn-outline admin-nav-btn" onClick={() => router.push("/hospital-admin/login")}>
           Hospital Admin
         </button>
-        {/* Doctor login */}
         <button className="btn-outline" onClick={() => router.push("/doctor-portal/login")}>
           Doctor Login
         </button>
         <button className="btn-primary" onClick={() => router.push("/hospitals")}>
           Book Appointment
+        </button>
+        <button className="btn-primary" onClick={() => router.push("/my-appointments")}>
+          My Appointments
         </button>
       </div>
     </nav>
