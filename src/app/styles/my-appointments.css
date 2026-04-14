@@ -1,0 +1,383 @@
+/* =========================
+   MY APPOINTMENTS LOOKUP
+   ========================= */
+
+.lk-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* ── Hero ── */
+.lk-hero {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.lk-hero-title {
+  font-size: 30px;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.lk-hero-sub {
+  color: #6b7280;
+  font-size: 15px;
+  margin-bottom: 24px;
+}
+
+/* ── Search card ── */
+.lk-card {
+  background: #ffffff;
+  border: 1px solid #e6f2f1;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
+}
+
+/* ── Phone / Email toggle ── */
+.lk-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.lk-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5eff0;
+  background: #f8fefe;
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.lk-toggle-btn.active {
+  background: #2aa9a1;
+  border-color: #2aa9a1;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ── Input + button ── */
+.lk-form {
+  display: flex;
+  gap: 10px;
+}
+
+.lk-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e5eff0;
+  border-radius: 12px;
+  background: #f8fefe;
+  padding: 10px 14px;
+}
+
+.lk-input-icon {
+  color: #9ca3af;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.lk-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: #111827;
+}
+
+.lk-input::placeholder {
+  color: #9ca3af;
+}
+
+.lk-search-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border-radius: 12px;
+  border: none;
+  background: #2aa9a1;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.lk-search-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.lk-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: lk-spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes lk-spin {
+  to { transform: rotate(360deg); }
+}
+
+.lk-error {
+  margin-top: 12px;
+  color: #dc2626;
+  font-size: 13px;
+}
+
+/* ── Results area ── */
+.lk-results {
+  margin-top: 8px;
+}
+
+.lk-results-count {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+/* ── Empty state ── */
+.lk-empty {
+  text-align: center;
+  padding: 48px 20px;
+  background: #ffffff;
+  border: 1px solid #e6f2f1;
+  border-radius: 18px;
+}
+
+.lk-empty-icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.lk-empty-title {
+  font-size: 18px;
+  color: #111827;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.lk-empty-sub {
+  color: #6b7280;
+  font-size: 14px;
+  max-width: 380px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Section headings ── */
+.lk-section {
+  margin-bottom: 28px;
+}
+
+.lk-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lk-section-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.lk-section-dot--upcoming { background: #2aa9a1; }
+.lk-section-dot--past     { background: #9ca3af; }
+
+/* ── Appointment list ── */
+.lk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Single appointment card ── */
+.lk-appt-card {
+  background: #ffffff;
+  border: 1px solid #e6f2f1;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+}
+
+.lk-appt-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.lk-appt-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #eefcfb;
+  border: 1px solid #d6f4f2;
+  color: #2aa9a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.lk-appt-doctor {
+  flex: 1;
+  min-width: 0;
+}
+
+.lk-appt-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lk-appt-spec {
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+/* ── Status badge ── */
+.lk-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lk-badge--confirmed { background: #e0f5f4; color: #0f6e56; }
+.lk-badge--completed { background: #e8f5e9; color: #2e7d32; }
+.lk-badge--cancelled { background: #fdecea; color: #c62828; }
+
+/* ── Detail grid ── */
+.lk-appt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.lk-appt-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #f8fefe;
+  border: 1px solid #e6f2f1;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.lk-appt-item-icon {
+  color: #2aa9a1;
+  font-size: 15px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.lk-appt-item-label {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-bottom: 2px;
+}
+
+.lk-appt-item-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.lk-appt-item-sub {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* ── Reason ── */
+.lk-appt-reason {
+  font-size: 13px;
+  color: #4b5563;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* ── Footer: book again ── */
+.lk-appt-footer {
+  border-top: 1px solid #e6f2f1;
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.lk-book-btn {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2aa9a1;
+  background: transparent;
+  border: 1px solid #2aa9a1;
+  border-radius: 8px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lk-book-btn:hover {
+  background: #2aa9a1;
+  color: #ffffff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 540px) {
+  .lk-hero-title { font-size: 24px; }
+
+  .lk-form {
+    flex-direction: column;
+  }
+
+  .lk-search-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .lk-appt-grid {
+    grid-template-columns: 1fr;
+  }
+}
