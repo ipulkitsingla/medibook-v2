@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FaStethoscope, FaCalendarAlt, FaCalendarCheck, FaCog, FaSignOutAlt } from "react-icons/fa";
 import { IoPersonOutline, IoCallOutline, IoTimeOutline, IoCheckmarkCircle, IoCloseCircle, IoEllipseOutline } from "react-icons/io5";
 import { PiHospitalBold } from "react-icons/pi";
+import { FaRobot, FaCheckDouble } from "react-icons/fa";
 
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const STATUS_COLORS = {
@@ -87,8 +88,9 @@ export default function DoctorDashboard() {
   const router = useRouter();
   const [doctor, setDoctor] = useState(null);
   const [appointments, setAppointments] = useState([]);
+  const [aiReports, setAiReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("today"); // today | all | schedule
+  const [tab, setTab] = useState("today"); // today | all | schedule | ai-reports
   const [scheduleForm, setScheduleForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
@@ -127,9 +129,23 @@ export default function DoctorDashboard() {
     }
   }, []);
 
+  // Load AI Reports
+  const loadAiReports = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/diagnosis/history`);
+      const data = await res.json();
+      setAiReports(Array.isArray(data) ? data : []);
+    } catch {
+      setAiReports([]);
+    }
+  }, []);
+
   useEffect(() => {
-    if (doctor?._id) loadAppointments(doctor._id);
-  }, [doctor, loadAppointments]);
+    if (doctor?._id) {
+      loadAppointments(doctor._id);
+      loadAiReports();
+    }
+  }, [doctor, loadAppointments, loadAiReports]);
 
   async function handleStatusChange(appointmentId, newStatus) {
     try {
@@ -142,6 +158,21 @@ export default function DoctorDashboard() {
         setAppointments((prev) =>
           prev.map((a) => a._id === appointmentId ? { ...a, status: newStatus } : a)
         );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function handleVerifyReport(reportId, notes) {
+    try {
+      const res = await fetch(`/api/diagnosis/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reportId, doctorNotes: notes }),
+      });
+      if (res.ok) {
+        loadAiReports(); // reload to show verified status
       }
     } catch (err) {
       console.error(err);
@@ -246,6 +277,12 @@ export default function DoctorDashboard() {
             onClick={() => setTab("schedule")}
           >
             <FaCog /> Manage Schedule
+          </button>
+          <button
+            className={`dash-nav-btn ${tab === "ai-reports" ? "active" : ""}`}
+            onClick={() => setTab("ai-reports")}
+          >
+            <FaRobot /> AI Insights
           </button>
         </nav>
 
@@ -415,6 +452,74 @@ export default function DoctorDashboard() {
                 {saveMsg}
               </p>
             )}
+          </div>
+        )}
+
+        {/* AI REPORTS TAB */}
+        {tab === "ai-reports" && (
+          <div className="dash-section">
+            <h2 className="dash-section-title">
+              Patient AI Predictions
+              <span className="dash-count">{aiReports.length}</span>
+            </h2>
+            <div className="grid gap-6">
+              {aiReports.length === 0 ? (
+                <div className="dash-empty">
+                  <FaRobot className="dash-empty-icon" />
+                  <p>No AI predictions available yet.</p>
+                </div>
+              ) : (
+                aiReports.map((report) => (
+                  <div key={report._id} className="bg-white p-6 rounded-lg shadow border border-gray-100 flex flex-col gap-4">
+                    <div className="flex justify-between items-start border-b pb-4">
+                      <div>
+                        <h3 className="text-lg font-bold">{report.disease} Assessment</h3>
+                        <p className="text-sm text-gray-500">Date: {new Date(report.createdAt).toLocaleString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${report.riskCategory === 'High' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                          {report.prediction} ({report.riskScore}%)
+                        </span>
+                        <p className="text-xs text-gray-400 mt-1">Confidence: {report.confidence}%</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <h4 className="font-semibold mb-2">Top Risk Factors:</h4>
+                        <ul className="list-disc pl-4 text-gray-600">
+                          {report.topFactors?.map((f, i) => (
+                            <li key={i}>{f.description}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2">Verification Status:</h4>
+                        {report.doctorVerified ? (
+                          <div className="text-green-600 flex items-center gap-2 font-medium">
+                            <FaCheckDouble /> Verified by Doctor
+                            {report.doctorNotes && <span className="text-gray-500 italic block mt-1">Notes: {report.doctorNotes}</span>}
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-yellow-600 mb-2">Pending Verification</p>
+                            <button 
+                              onClick={() => {
+                                const notes = prompt("Enter verification notes (optional):");
+                                if (notes !== null) handleVerifyReport(report._id, notes);
+                              }}
+                              className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-100"
+                            >
+                              Verify Prediction
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
       </main>

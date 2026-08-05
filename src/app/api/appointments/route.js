@@ -11,6 +11,18 @@ export async function POST(req) {
       return Response.json({ error: "doctorId, hospitalId, date and time are required" }, { status: 400 });
     }
 
+    // Check for double booking
+    const existingAppointment = await Appointment.findOne({
+      doctorId: body.doctorId,
+      date: body.date,
+      time: body.time,
+      status: { $ne: "cancelled" }
+    });
+
+    if (existingAppointment) {
+      return Response.json({ error: "This slot is already booked." }, { status: 409 });
+    }
+
     const appointment = await Appointment.create(body);
     return Response.json(appointment, { status: 201 });
   } catch (err) {
