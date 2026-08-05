@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { PiHospitalBold } from "react-icons/pi";
-import { FaUserMd, FaCalendarAlt, FaCog, FaSignOutAlt, FaPlus, FaTrash, FaRobot, FaChartBar } from "react-icons/fa";
+import { FaUserMd, FaCalendarAlt, FaCog, FaSignOutAlt, FaPlus, FaTrash } from "react-icons/fa";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 
 // Days of the week shown in the "Add Doctor" form
@@ -36,7 +36,6 @@ export default function AdminDashboard() {
   const [hospital,     setHospital]     = useState(null);
   const [doctors,      setDoctors]      = useState([]);
   const [appointments, setAppointments] = useState([]);
-  const [aiReports,    setAiReports]    = useState([]);
   const [loading,      setLoading]      = useState(true);
 
   // Which tab is currently shown: "doctors" | "appointments" | "settings"
@@ -120,25 +119,13 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  // Load AI Reports
-  const loadAiReports = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/diagnosis/history`);
-      const data = await res.json();
-      setAiReports(Array.isArray(data) ? data : []);
-    } catch {
-      setAiReports([]);
-    }
-  }, []);
-
   // Run loaders once hospital is known
   useEffect(() => {
     if (hospital?._id) {
       loadDoctors(hospital._id);
       loadAppointments(hospital._id);
-      loadAiReports();
     }
-  }, [hospital, loadDoctors, loadAppointments, loadAiReports]);
+  }, [hospital, loadDoctors, loadAppointments]);
 
   // ─────────────────────────────────────────
   // Add a new doctor
@@ -321,13 +308,6 @@ export default function AdminDashboard() {
             onClick={() => setTab("settings")}
           >
             <FaCog /> Hospital Settings
-          </button>
-          <button
-            className={`dash-nav-btn ${tab === "analytics" ? "active" : ""}`}
-            style={tab === "analytics" ? { background: "#e8f0ff", color: "#4f6ef7" } : {}}
-            onClick={() => setTab("analytics")}
-          >
-            <FaChartBar /> AI Analytics
           </button>
         </nav>
 
@@ -646,94 +626,6 @@ export default function AdminDashboard() {
                 {settingsMsg}
               </p>
             )}
-          </div>
-        )}
-
-        {/* ══════════════════════════════════
-            TAB 4: AI ANALYTICS
-        ══════════════════════════════════ */}
-        {tab === "analytics" && (
-          <div className="dash-section">
-            <h2 className="dash-section-title">
-              AI Clinical Decision Support Analytics
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow border border-gray-100 flex flex-col items-center">
-                <FaRobot className="text-4xl text-indigo-500 mb-2" />
-                <h3 className="text-lg font-bold text-gray-700">Total Predictions</h3>
-                <p className="text-3xl font-extrabold text-indigo-600">{aiReports.length}</p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow border border-gray-100 flex flex-col items-center">
-                <div className="text-4xl text-red-500 mb-2">⚠</div>
-                <h3 className="text-lg font-bold text-gray-700">High Risk Patients</h3>
-                <p className="text-3xl font-extrabold text-red-600">
-                  {aiReports.filter(r => r.riskCategory === 'High').length}
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow border border-gray-100 flex flex-col items-center">
-                <IoCheckmarkCircle className="text-4xl text-green-500 mb-2" />
-                <h3 className="text-lg font-bold text-gray-700">Doctor Verified</h3>
-                <p className="text-3xl font-extrabold text-green-600">
-                  {aiReports.filter(r => r.doctorVerified).length}
-                </p>
-              </div>
-            </div>
-
-            <h3 className="text-xl font-bold mb-4">Recent AI Reports</h3>
-            <div className="overflow-x-auto bg-white rounded-lg shadow">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disease</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Score</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {aiReports.slice(0, 10).map((report) => (
-                    <tr key={report._id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(report.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {report.disease}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {report.riskScore}%
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${report.riskCategory === 'High' ? 'bg-red-100 text-red-800' : report.riskCategory === 'Moderate' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                          {report.riskCategory}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {report.doctorVerified ? <span className="text-green-600 font-medium">Verified</span> : <span className="text-gray-400">Pending</span>}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="mt-4 flex justify-end">
-               <button className="bg-gray-800 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition" onClick={() => {
-                 // Basic CSV export
-                 const headers = "Date,Disease,Risk Score,Category,Verified\n";
-                 const rows = aiReports.map(r => `${new Date(r.createdAt).toLocaleDateString()},${r.disease},${r.riskScore},${r.riskCategory},${r.doctorVerified}`).join("\n");
-                 const blob = new Blob([headers + rows], { type: 'text/csv' });
-                 const url = window.URL.createObjectURL(blob);
-                 const a = document.createElement('a');
-                 a.href = url;
-                 a.download = 'ai_reports_export.csv';
-                 a.click();
-               }}>
-                 Export CSV
-               </button>
-            </div>
           </div>
         )}
 
